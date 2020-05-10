@@ -1,44 +1,74 @@
-import React from 'react';
-import {View, StatusBar, FlatList, Text} from 'react-native';
+import React, {useEffect} from 'react';
+import {View, StatusBar, FlatList, Text, ActivityIndicator} from 'react-native';
 import ItemCourses from '../../../components/ItemCourses';
 import {Container, Header, H1} from './styles';
+import firestore from '@react-native-firebase/firestore';
+import colors from '../../../utils/colors';
 
 export default function Home({navigation}) {
+  const [roadmaps, setRoadmaps] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    getRoadmaps();
+  }, []);
+
+  function getRoadmaps() {
+    const data = [];
+    firestore()
+      .collection('roadmap')
+      .get()
+      .then((querySnapShot) => {
+        querySnapShot.forEach((item) => {
+          data.push({
+            id: item.id,
+            img: item.data().url,
+            title: item.data().title,
+            author: item.data().author,
+            description: item.data().description,
+          });
+        });
+        setRoadmaps(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+      });
+  }
+
   return (
     <Container>
-      <StatusBar backgroundColor="#f7ba5e" barStyle="dark-content" />
+      <StatusBar backgroundColor={colors.orange} barStyle="dark-content" />
       <Header>
         <H1>
           Olá, Buscando aprender{'\n'}uma nova tecnologia{'\n'}hoje?
         </H1>
       </Header>
-      <FlatList
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-        }}
-        numColumns={2}
-        data={[
-          {id: '1', img: '', title: 'RoadMap React-Native'},
-          {id: '2', img: '', title: 'Vue Js na Prática'},
-          {id: '3', img: '', title: 'Angular para iniciantes'},
-          {id: '4', img: '', title: 'Vue Js na Prática'},
-          {id: '5', img: '', title: 'Vue Js na Prática'},
-          {id: '6', img: '', title: 'Vue Js na Prática'},
-          {id: '7', img: '', title: 'Vue Js na Prática'},
-          {id: '8', img: '', title: 'Vue Js na Prática'},
-          {id: '9', img: '', title: 'Vue Js na Prática'},
-          {id: '10', img: '', title: 'Vue Js na Prática'},
-        ]}
-        renderItem={({item}) => {
-          return (
-            <ItemCourses
-              {...item}
-              onPress={() => navigation.navigate('Course')}
-            />
-          );
-        }}
-        keyExtractor={(item) => item.id}
-      />
+
+      {loading === true ? (
+        <ActivityIndicator
+          size={40}
+          color={colors.orange}
+          style={{marginTop: 90}}
+        />
+      ) : (
+        <FlatList
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+          }}
+          numColumns={2}
+          data={roadmaps}
+          renderItem={({item}) => {
+            return (
+              <ItemCourses
+                {...item}
+                onPress={() => navigation.navigate('Course', {item})}
+              />
+            );
+          }}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </Container>
   );
 }

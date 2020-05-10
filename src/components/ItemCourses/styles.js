@@ -24,6 +24,7 @@ export const Title = styled.Text`
   color: ${colors.primary};
   padding-horizontal: 10px;
   text-align: left;
+  width: 100%;
 `;
 
 export const Author = styled.Text`

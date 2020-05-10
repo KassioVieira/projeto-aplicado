@@ -3,15 +3,17 @@ import {View, Image} from 'react-native';
 
 import {Item, Title, Author} from './styles';
 
-export default function ItemCourses({title, ...props}) {
+export default function ItemCourses({title, img, author, ...props}) {
   return (
     <Item {...props}>
       <Image
-        source={require('../../assets/img/app.png')}
-        style={{width: '90%', height: 100}}
+        source={{uri: img}}
+        style={{width: '100%', height: 100}}
+        borderTopLeftRadius={12}
+        borderTopRightRadius={12}
       />
       <Title>{title}</Title>
-      <Author>Kássio Luz</Author>
+      <Author>{author}</Author>
     </Item>
   );
 }
