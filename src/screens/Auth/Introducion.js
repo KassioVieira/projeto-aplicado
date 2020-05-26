@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import {View, Text, StatusBar, StyleSheet, Image} from 'react-native';
+import {View, Text, StatusBar, StyleSheet, Alert} from 'react-native';
 import Button from '../../components/Button';
 import TextField from '../../components/TextField';
 
+import auth from '@react-native-firebase/auth';
 import colors from '../../utils/colors';
 
 const Container = styled.SafeAreaView`
@@ -23,14 +24,32 @@ const Header = styled.View`
 export default function App({navigation}) {
   const [email, setEmail] = React.useState('');
   const [senha, setSenha] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+
+  function loginWithFirebase() {
+    setLoading(true);
+    if (email.trim() !== '' && senha.trim() !== '') {
+      auth()
+        .signInWithEmailAndPassword(email, senha)
+        .then(() => {
+          setLoading(false);
+          navigation.navigate('App');
+        })
+        .catch(() => {
+          setLoading(false);
+          Alert.alert('Erro no login');
+        });
+    } else {
+      Alert.alert('Atenção', 'Preecha os campos corretamente');
+      setLoading(false);
+    }
+  }
 
   return (
     <Container>
       <StatusBar backgroundColor={colors.orange} barStyle="dark-content" />
       <Header>
-        <Text style={styles.logo}>
-          Olá, Seja bem vindo{'\n'}ao RoadmApp{'\n'}hoje?
-        </Text>
+        <Text style={styles.logo}>Olá, Seja bem vindo{'\n'}ao RoadmApp</Text>
       </Header>
       <View style={styles.form}>
         <TextField
@@ -51,7 +70,8 @@ export default function App({navigation}) {
           label="Login"
           background={colors.secondary}
           color={colors.primary}
-          onPress={() => navigation.navigate('App')}
+          onPress={() => loginWithFirebase()}
+          loading={loading}
         />
         <Button
           label="Cadastre-se"
